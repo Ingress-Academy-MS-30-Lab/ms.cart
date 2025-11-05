@@ -1,6 +1,7 @@
 package az.ingress.mapper;
 
 import az.ingress.dao.entity.Cart;
+import az.ingress.model.dto.CartCreateDto;
 import az.ingress.model.enums.CartStatus;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -42,7 +43,6 @@ public interface CartMapper {
         if (cart != null) {
             cart.setStatus(CartStatus.DELETED);
             cart.setDeletedAt(now);
-
 
         }
     }
