@@ -34,7 +34,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "carts")
-public class Cart {
+
+public class CartEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -60,5 +61,5 @@ public class Cart {
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "cart", cascade = {PERSIST, MERGE}, orphanRemoval = true)
-    private Set<CartItem> items;
+    private Set<CartItemEntity> items;
 }
