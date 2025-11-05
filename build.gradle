@@ -22,12 +22,23 @@ dependencies {
     //spring
     implementation "org.springframework.boot:spring-boot-starter-web"
 
+    //database
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.liquibase:liquibase-core"
+    runtimeOnly "org.postgresql:postgresql"
+
     //lombok
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
 
     //swagger
     implementation "org.springdoc:springdoc-openapi-ui:$openApiVersion"
+
+    //rabbitmq
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //testing
     testImplementation "org.apache.groovy:groovy:$groovyVersion"
