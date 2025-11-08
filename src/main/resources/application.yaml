@@ -1,5 +1,9 @@
 server:
   port: 8080
+
+  product:
+    base-url: http://ms-product:8080
+
   spring:
     datasource:
       url: jdbc:postgresql://localhost:5432/postgres
@@ -24,3 +28,6 @@ server:
       port: 6379
       password: redis_password
       timeout: 2000
+
+    liquibase:
+      drop-first: true

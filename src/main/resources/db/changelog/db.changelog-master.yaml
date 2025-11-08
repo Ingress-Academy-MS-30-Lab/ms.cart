@@ -2,4 +2,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/001-create-carts.yml
   - include:
-      file: db/changelog/002-create-cartEntity-items.yml
+      file: db/changelog/002-create-cart-items.yml

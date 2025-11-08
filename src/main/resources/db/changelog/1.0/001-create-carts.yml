@@ -1,40 +1,40 @@
 databaseChangeLog:
   - changeSet:
       id: 001-create-carts
-      author: you
+      author: rufat
       changes:
         - createTable:
             tableName: carts
             columns:
               - column:
                   name: id
-                  type: BIGSERIAL
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
+                    nullable: false
+
               - column:
                   name: buyer_id
                   type: BIGINT
+
               - column:
                   name: status
                   type: VARCHAR(32)
                   constraints:
                     nullable: false
+
               - column:
                   name: created_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-                  defaultValueComputed: now()
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
+
               - column:
                   name: updated_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-                  defaultValueComputed: now()
-                  constraints:
-                    nullable: false
+                  type: TIMESTAMP
+
               - column:
                   name: deleted_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-        - addCheckConstraint:
-            tableName: carts
-            constraintName: ck_carts_status
-            checkConstraint: "status in ('CREATED','ORDERED','DELETED')"
+                  type: TIMESTAMP

@@ -1,6 +1,5 @@
 package az.ingress.mapper;
 
-
 import az.ingress.dao.entity.CartItemEntity;
 import az.ingress.model.dto.ProductSnapshotDto;
 import az.ingress.model.request.AddCartItemRequest;
@@ -8,9 +7,7 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-
 import java.math.BigDecimal;
-
 
 @Mapper(componentModel = "spring")
 public interface CartItemMapper {

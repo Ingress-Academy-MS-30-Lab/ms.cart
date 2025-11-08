@@ -2,9 +2,9 @@ package az.ingress.mapper;
 
 import az.ingress.dao.entity.CartEntity;
 import az.ingress.dao.entity.CartItemEntity;
-import az.ingress.model.response.CartItemResponce;
-import az.ingress.model.response.CartResponce;
-import az.ingress.model.response.CartTotalResponce;
+import az.ingress.model.response.CartItemResponse;
+import az.ingress.model.response.CartResponse;
+import az.ingress.model.response.CartTotalResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import java.math.BigDecimal;
@@ -12,11 +12,11 @@ import java.util.List;
 
 
 @Mapper(componentModel = "spring")
-public interface CartResponceMapper {
+public interface CartResponseMapper {
 
     @Mapping(target = "items", source = "items")
     @Mapping(target = "totals", expression = "java(buildTotals(cart))")
-    CartResponce toResponce(CartEntity cart);
+    CartResponse toResponse(CartEntity cart);
 
     @Mapping(target = "unitPrice", source = "unitPriceSnapshot")
     @Mapping(target = "onSale", source = "onSaleSnapshot")
@@ -28,7 +28,7 @@ public interface CartResponceMapper {
     @Mapping(target = "supplierUserName", source = "supplierUserNameSnapshot")
     @Mapping(target = "attributesJson", source = "attributesSnapshotJson")
     @Mapping(target = "lineTotal", expression = "java(lineTotal(item))")
-    CartItemResponce toItem(CartItemEntity item);
+    CartItemResponse toItem(CartItemEntity item);
 
 
     default BigDecimal lineTotal(CartItemEntity item) {
@@ -36,12 +36,12 @@ public interface CartResponceMapper {
         return item.getUnitPriceSnapshot().multiply(BigDecimal.valueOf(item.getQty()));
     }
 
-    default CartTotalResponce buildTotals(CartEntity cart) {
+    default CartTotalResponse buildTotals(CartEntity cart) {
         List<CartItemEntity> list = cart.getItems() == null ? List.of() : cart.getItems().stream().toList();
         int itemsCount = list.size();
         long totalQty = list.stream().map(CartItemEntity::getQty).filter(q -> q != null).mapToLong(Long::longValue).sum();
         BigDecimal amount = list.stream().map(this::lineTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return CartTotalResponce.builder()
+        return CartTotalResponse.builder()
                 .itemsCount(itemsCount)
                 .totalQty(totalQty)
                 .amount(amount)

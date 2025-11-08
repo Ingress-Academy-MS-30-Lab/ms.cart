@@ -13,11 +13,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartResponce {
+public class CartResponse {
 
     private Long id;
     private Long buyerId;
     private CartStatus status;
-    private List<CartItemResponce> items;
-    private CartTotalResponce totals;
+    private List<CartItemResponse> items;
+    private CartTotalResponse totals;
 }

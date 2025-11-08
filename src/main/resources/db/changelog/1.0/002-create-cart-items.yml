@@ -1,61 +1,77 @@
 databaseChangeLog:
   - changeSet:
-      id: 002-create-cartEntity-items
-      author: you
+      id: 002-create-cart-items
+      author: rufat
       changes:
         - createTable:
             tableName: cart_items
             columns:
               - column:
                   name: id
-                  type: BIGSERIAL
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
+                    nullable: false
+
               - column:
                   name: cart_id
                   type: BIGINT
                   constraints:
                     nullable: false
+
               - column:
                   name: product_id
                   type: BIGINT
+
               - column:
                   name: product_variant_id
                   type: BIGINT
+
               - column:
                   name: qty
                   type: BIGINT
+
               - column:
                   name: unit_price_snapshot
                   type: NUMERIC(19,2)
+
               - column:
                   name: on_sale_snapshot
                   type: BOOLEAN
+
               - column:
                   name: title_snapshot
                   type: VARCHAR(512)
+
               - column:
                   name: image_url_snapshot
                   type: VARCHAR(1024)
+
               - column:
                   name: category_id_snapshot
                   type: BIGINT
+
               - column:
                   name: category_name_snapshot
                   type: VARCHAR(255)
+
               - column:
                   name: supplier_id_snapshot
                   type: BIGINT
+
               - column:
-                  name: supplier_username_snapshot
+                  name: supplier_user_name_snapshot
                   type: VARCHAR(255)
+
               - column:
                   name: attributes_snapshot
                   type: JSONB
+
         - addForeignKeyConstraint:
             baseTableName: cart_items
             baseColumnNames: cart_id
+            constraintName: fk_cart_items_cart
             referencedTableName: carts
             referencedColumnNames: id
             onDelete: CASCADE
-            constraintName: fk_cart_items_cart

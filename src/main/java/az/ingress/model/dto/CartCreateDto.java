@@ -12,5 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class CartCreateDto {
+
     private Long buyerId;
 }

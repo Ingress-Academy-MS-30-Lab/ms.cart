@@ -5,17 +5,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartTotalResponce {
+public class ProductAttributeResponse {
 
-    private Integer itemsCount;
-    private Long totalQty;
-    private BigDecimal amount;
+    private Long id;
+    private String attributeName;
+    private String attributeValue;
 
 }
