@@ -13,5 +13,4 @@ public interface CartRepository extends CrudRepository<CartEntity, Long> {
 
     @EntityGraph(attributePaths = "items")
     Optional<CartEntity> findWithItemsByBuyerIdAndStatusNot(Long buyerId, CartStatus status);
-
 }

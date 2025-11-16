@@ -1,40 +1,33 @@
 server:
   port: 8080
 
+spring:
+  application:
+    name: ms-cart
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
 product:
   client:
     urls:
       ms-product: ${MS_PRODUCT_URL:http://ms-product:8080}
 
-spring:
-  profiles:
-    active: ${ACTIVE_PROFILE:local}
-
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-
-
-  rabbitmq:
+rabbitmq:
     host: ${RABBIT_HOST:localhost}
     port: ${RABBIT_PORT:5672}
-    username: ${RABBIT_USERNAME:guest}
-    password: ${RABBIT_PASSWORD:guest}
+    username: ${RABBIT_USER:guest}
+    password: ${RABBIT_PASS:guest}
 
+redisson:
+  server:
+    url: ${REDIS_URL:redis://localhost:6379}
 
-  redisson:
-    single-server-config:
-      address: ${REDIS_URL:redis://localhost:6379}
-
-
-cart:
-  recommendation:
-    cron: "0 0/30 * * * *"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

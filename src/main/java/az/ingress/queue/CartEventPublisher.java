@@ -1,18 +1,20 @@
 package az.ingress.queue;
 
 
-import az.ingress.configuration.RabbitConfiguration;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class CartEventPublisher {
 
-    private final RabbitTemplate rabbitTemplate;
+    private final AmqpTemplate amqpTemplate;
 
-    public void publish(CartChangedEvent event) {
-        rabbitTemplate.convertAndSend(RabbitConfiguration.EXCHANGE, RabbitConfiguration.ROUTING_KEY, event);
+    public void publishCartChanged(Long cartId, Long buyerId) {
+        amqpTemplate.convertAndSend("cart.exchange","cart.changed",
+                Map.of("cartId", cartId, "buyerId", buyerId, "ts", System.currentTimeMillis()));
     }
 }

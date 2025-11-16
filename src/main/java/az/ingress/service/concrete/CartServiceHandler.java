@@ -1,158 +1,122 @@
 package az.ingress.service.concrete;
 
-import az.ingress.client.ProductClient;
+import az.ingress.aop.ToLog;
 import az.ingress.dao.entity.CartEntity;
 import az.ingress.dao.entity.CartItemEntity;
 import az.ingress.dao.repository.CartItemRepository;
 import az.ingress.dao.repository.CartRepository;
-import az.ingress.mapper.CartItemMapper;
-import az.ingress.mapper.CartMapper;
+import az.ingress.exception.NotFoundException;
 import az.ingress.mapper.CartResponseMapper;
-import az.ingress.model.dto.CartCreateDto;
+import az.ingress.model.enums.CartStatus;
 import az.ingress.model.request.AddCartItemRequest;
 import az.ingress.model.request.UpdateCartItemRequest;
 import az.ingress.model.response.CartResponse;
 import az.ingress.service.abstraction.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
-import static az.ingress.model.enums.CartStatus.CREATED;
-import static az.ingress.model.enums.CartStatus.DELETED;
-import static az.ingress.model.enums.CartStatus.ORDERED;
+import static az.ingress.exception.ErrorMessage.CART_NOT_FOUND;
 
+@ToLog(level = ToLog.Level.INFO, logArgs = true, logResult = false)
 @Service
 @RequiredArgsConstructor
 public class CartServiceHandler implements CartService {
 
+    private static final String CART_ITEM_NOT_FOUND = "Cart item not found";
+
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final ProductClient productClient;
-
-    private final CartMapper cartMapper;
-    private final CartItemMapper cartItemMapper;
     private final CartResponseMapper cartResponseMapper;
+    private final CartCacheService cartCacheService;
 
-
+    @ToLog
     @Override
     public CartResponse getCart(Long buyerId) {
+        var cached = cartCacheService.get(buyerId);
+        if (cached != null) return cached;
+
         var cart = findActiveCartOrThrow(buyerId);
-        return cartResponseMapper.toResponse(cart);
+        var resp = cartResponseMapper.toResponse(cart);
+        cartCacheService.put(buyerId, resp);
+        return resp;
     }
 
+    @ToLog
     @Override
-    public CartResponse addItem(Long buyerId, AddCartItemRequest request) {
+    public void addItem(Long buyerId, AddCartItemRequest request) {
+        var cart = findOrCreateActiveCart(buyerId);
 
-        CartEntity cart = cartRepository
-                .findByBuyerIdAndStatusNot(buyerId, DELETED)
-                .orElseGet(() -> createNewCart(buyerId));
+        var itemOpt = cartItemRepository
+                .findByCartIdAndProductVariantId(cart.getId(), request.getProductVariantId());
 
-        CartItemEntity item = cartItemRepository
-                .findByCartIdAndProductVariantId(cart.getId(), request.getProductVariantId())
-                .orElse(null);
-
-        if (item != null) {
-
-            long newQty = item.getQty() == null ? 0 : item.getQty();
-            newQty += Math.max(1, request.getQty());
+        if (itemOpt.isPresent()) {
+            var item = itemOpt.get();
+            long base = item.getQty() == null ? 0 : item.getQty();
+            long newQty = Math.max(1, base + request.getQty());
             item.setQty(newQty);
+            cartItemRepository.save(item);
         } else {
-
-        CartItemEntity newItem = cartItemMapper.toEntity(request, snapshot);
+            var newItem = new CartItemEntity();
             newItem.setCart(cart);
-
+            newItem.setProductId(request.getProductId());
+            newItem.setProductVariantId(request.getProductVariantId());
+            newItem.setQty(Math.max(1, request.getQty()));
             cartItemRepository.save(newItem);
         }
 
-        updateCartStatusAfterChange(cart,cart.getCreatedAt() == null);
-
-        CartEntity saved = cartRepository.save(cart);
-        return cartResponseMapper.toResponse(saved);
+        evictCartCache(buyerId);
     }
 
+    @ToLog
     @Override
-    @Transactional
-    public CartResponse updateItem(Long buyerId, Long productVariantId, UpdateCartItemRequest request) {
-        CartEntity cart = findActiveCartOrThrow(buyerId);
-
-        CartItemEntity item = cartItemRepository
-                .findByCartIdAndProductVariantId(cart.getId(), productVariantId)
-                .orElseThrow(() -> new IllegalStateException("Cart item not found"));
+    public void updateItem(Long buyerId, Long productVariantId, UpdateCartItemRequest request) {
+        var cart = findActiveCartOrThrow(buyerId);
+        var item = findItemOrThrow(cart.getId(), productVariantId);
 
         long qty = request.getQty();
-
         if (qty <= 0) {
-
             cart.getItems().remove(item);
             cartItemRepository.delete(item);
         } else {
             item.setQty(qty);
+            cartItemRepository.save(item);
         }
 
-
-        if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            markCartDeleted(cart);
-        } else {
-            cart.setStatus(ORDERED);
-        }
-
-        CartEntity saved = cartRepository.save(cart);
-        return cartResponseMapper.toResponse(saved);
+        evictCartCache(buyerId);
     }
 
+    @ToLog
     @Override
-    @Transactional
-    public CartResponse removeItem(Long buyerId, Long productVariantId) {
-        CartEntity cart = findActiveCartOrThrow(buyerId);
-
-        CartItemEntity item = cartItemRepository
-                .findByCartIdAndProductVariantId(cart.getId(), productVariantId)
-                .orElseThrow(() -> new IllegalStateException("Cart item not found"));
+    public void removeItem(Long buyerId, Long productVariantId) {
+        var cart = findActiveCartOrThrow(buyerId);
+        var item = findItemOrThrow(cart.getId(), productVariantId);
 
         cart.getItems().remove(item);
         cartItemRepository.delete(item);
 
-        if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            markCartDeleted(cart);
-        } else {
-            cart.setStatus(ORDERED);
-        }
-
-        CartEntity saved = cartRepository.save(cart);
-        return cartResponseMapper.toResponse(saved);
+        evictCartCache(buyerId);
     }
 
-
-
-    private CartEntity createNewCart(Long buyerId) {
-        CartCreateDto dto = CartCreateDto.builder()
-                .buyerId(buyerId)
-                .build();
-        CartEntity cart = cartMapper.toEntity(dto);
-
-        return cartRepository.save(cart);
+    private void evictCartCache(Long buyerId) {
+        cartCacheService.evict(buyerId);
     }
 
     private CartEntity findActiveCartOrThrow(Long buyerId) {
-        return cartRepository
-                .findByBuyerIdAndStatusNot(buyerId, DELETED)
-                .orElseThrow(() -> new IllegalStateException("Cart not found"));
+        return cartRepository.findByBuyerIdAndStatusNot(buyerId, CartStatus.DELETED)
+                .orElseThrow(() -> new NotFoundException(CART_NOT_FOUND));
     }
 
-
-
-    private void updateCartStatusAfterChange(CartEntity cart, boolean isNewCart) {
-        if (isNewCart) {
-            cart.setStatus(CREATED);
-        } else if (cart.getStatus() != DELETED) {
-            cart.setStatus(ORDERED);
-        }
+    private CartEntity findOrCreateActiveCart(Long buyerId) {
+        return cartRepository.findByBuyerIdAndStatusNot(buyerId, CartStatus.DELETED)
+                .orElseGet(() -> {
+                    var c = new CartEntity();
+                    c.setBuyerId(buyerId);
+                    c.setStatus(CartStatus.CREATED);
+                    return cartRepository.save(c);
+                });
     }
 
-    private void markCartDeleted(CartEntity cart) {
-        cart.setStatus(DELETED);
-        cart.setDeletedAt(LocalDateTime.now());
+    private CartItemEntity findItemOrThrow(Long cartId, Long variantId) {
+        return cartItemRepository.findByCartIdAndProductVariantId(cartId, variantId)
+                .orElseThrow(() -> new NotFoundException(CART_ITEM_NOT_FOUND));
     }
-
-
 }

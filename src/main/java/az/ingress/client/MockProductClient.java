@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @Profile("mock")
 @Component
 public class MockProductClient implements ProductClient {
+
     @Override
     public ProductResponseDto getVariant(Long variantId) {
         return ProductResponseDto.builder()
@@ -28,5 +29,4 @@ public class MockProductClient implements ProductClient {
                 .attributesJson("[]")
                 .build();
     }
-
 }

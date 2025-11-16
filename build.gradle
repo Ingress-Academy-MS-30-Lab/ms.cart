@@ -34,6 +34,10 @@ dependencies {
     //swagger
     implementation "org.springdoc:springdoc-openapi-ui:$openApiVersion"
 
+    //aop
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+
+
     // OpenFeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0'
 
@@ -50,6 +54,7 @@ dependencies {
     // ShedLock
     implementation "net.javacrumbs.shedlock:shedlock-spring:${shedlockVersion}"
     implementation "net.javacrumbs.shedlock:shedlock-provider-jdbc-template:${shedlockVersion}"
+
 
     //testing
     testImplementation "org.apache.groovy:groovy:$groovyVersion"

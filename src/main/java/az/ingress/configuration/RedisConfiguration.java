@@ -1,9 +1,9 @@
 package az.ingress.configuration;
 
-import static org.redisson.Redisson.create;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.SerializationCodec;
+import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,15 +11,15 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RedisConfiguration {
-    @Value("${redis.server.urls}")
-    private String redisServer;
 
     @Bean
-    public RedissonClient redissonClient() {
-        var config = new Config();
-        config.setCodec(new SerializationCodec())
-                .useSingleServer()
-                .setAddress(redisServer);
-        return create(config);
+    public RedissonClient redissonClient(
+            @Value("${redisson.server.url}") String url,
+            ObjectMapper objectMapper
+    ) {
+        Config cfg = new Config();
+        cfg.setCodec(new JsonJacksonCodec(objectMapper));
+        cfg.useSingleServer().setAddress(url);
+        return Redisson.create(cfg);
     }
 }
