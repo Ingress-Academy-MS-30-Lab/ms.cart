@@ -1,5 +1,6 @@
 package az.ingress.service.concrete;
 
+import az.ingress.client.ProductClient;
 import az.ingress.dao.entity.CartEntity;
 import az.ingress.dao.entity.CartItemEntity;
 import az.ingress.dao.repository.CartItemRepository;
@@ -8,12 +9,10 @@ import az.ingress.mapper.CartItemMapper;
 import az.ingress.mapper.CartMapper;
 import az.ingress.mapper.CartResponseMapper;
 import az.ingress.model.dto.CartCreateDto;
-import az.ingress.model.dto.ProductSnapshotDto;
 import az.ingress.model.request.AddCartItemRequest;
 import az.ingress.model.request.UpdateCartItemRequest;
 import az.ingress.model.response.CartResponse;
 import az.ingress.service.abstraction.CartService;
-import az.ingress.service.abstraction.ProductClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,7 @@ import static az.ingress.model.enums.CartStatus.ORDERED;
 
 @Service
 @RequiredArgsConstructor
-public class CartServiceImplementation implements CartService {
+public class CartServiceHandler implements CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
@@ -36,14 +35,12 @@ public class CartServiceImplementation implements CartService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public CartResponse getCart(Long buyerId) {
-        CartEntity cart = findActiveCartOrThrow(buyerId);
+        var cart = findActiveCartOrThrow(buyerId);
         return cartResponseMapper.toResponse(cart);
     }
 
     @Override
-    @Transactional
     public CartResponse addItem(Long buyerId, AddCartItemRequest request) {
 
         CartEntity cart = cartRepository
@@ -61,11 +58,7 @@ public class CartServiceImplementation implements CartService {
             item.setQty(newQty);
         } else {
 
-            ProductSnapshotDto snapshot =
-                    productClient.getVariantSnapshot(request.getProductVariantId());
-
-
-            CartItemEntity newItem = cartItemMapper.toEntity(request, snapshot);
+        CartItemEntity newItem = cartItemMapper.toEntity(request, snapshot);
             newItem.setCart(cart);
 
             cartItemRepository.save(newItem);
@@ -160,4 +153,6 @@ public class CartServiceImplementation implements CartService {
         cart.setStatus(DELETED);
         cart.setDeletedAt(LocalDateTime.now());
     }
+
+
 }

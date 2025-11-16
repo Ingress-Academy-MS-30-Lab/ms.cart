@@ -34,20 +34,29 @@ dependencies {
     //swagger
     implementation "org.springdoc:springdoc-openapi-ui:$openApiVersion"
 
-    //rabbitmq
-    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    // OpenFeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0'
 
     //redis
     implementation "org.redisson:redisson:${redisVersion}"
 
+     //rabbitmq
+    implementation "org.springframework.boot:spring-boot-starter-amqp:${rabbitmqAmqpVersion}"
+
     //mapstruct
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+    // ShedLock
+    implementation "net.javacrumbs.shedlock:shedlock-spring:${shedlockVersion}"
+    implementation "net.javacrumbs.shedlock:shedlock-provider-jdbc-template:${shedlockVersion}"
+
     //testing
     testImplementation "org.apache.groovy:groovy:$groovyVersion"
     testImplementation "io.github.benas:random-beans:$randomBeansVersion"
     testImplementation "org.spockframework:spock-spring:$spockSpringVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+
 }
 
 test {

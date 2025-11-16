@@ -7,21 +7,28 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductVariantResponse {
+public class ProductResponseDto {
+    private Long productId;
+    private Long productVariantId;
 
-    private Long id;
+    private String title;
     private String imageUrl;
+
+    private Long categoryId;
+    private String categoryName;
+
+    private Long supplierId;
+    private String supplierUserName;
+
     private BigDecimal price;
     private BigDecimal salePrice;
     private Boolean onSale;
-    private Long stockQuantity;
-    private Boolean inStock;
-    private List<ProductAttributeResponse> attributes;
+
+    private String attributesJson;
 }
