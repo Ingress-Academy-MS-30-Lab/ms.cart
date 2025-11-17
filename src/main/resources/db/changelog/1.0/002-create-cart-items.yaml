@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 002-create-cart-items
-      author: rufat
+      author: Rufat
       changes:
         - createTable:
             tableName: cart_items
@@ -65,7 +65,7 @@ databaseChangeLog:
                   type: VARCHAR(255)
 
               - column:
-                  name: attributes_snapshot
+                  name: attributes_snapshot_json   # <--- было attributes_snapshot
                   type: JSONB
 
         - addForeignKeyConstraint:

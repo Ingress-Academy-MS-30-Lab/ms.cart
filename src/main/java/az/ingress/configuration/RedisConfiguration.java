@@ -14,12 +14,12 @@ public class RedisConfiguration {
 
     @Bean
     public RedissonClient redissonClient(
-            @Value("${redisson.server.url}") String url,
+            @Value("${redisson.server.url}") String redisUrl,
             ObjectMapper objectMapper
     ) {
         Config cfg = new Config();
         cfg.setCodec(new JsonJacksonCodec(objectMapper));
-        cfg.useSingleServer().setAddress(url);
+        cfg.useSingleServer().setAddress(redisUrl);
         return Redisson.create(cfg);
     }
 }

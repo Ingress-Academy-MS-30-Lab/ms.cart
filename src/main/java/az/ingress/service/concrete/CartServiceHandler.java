@@ -6,14 +6,19 @@ import az.ingress.dao.entity.CartItemEntity;
 import az.ingress.dao.repository.CartItemRepository;
 import az.ingress.dao.repository.CartRepository;
 import az.ingress.exception.NotFoundException;
+import az.ingress.mapper.CartItemMapper;
 import az.ingress.mapper.CartResponseMapper;
 import az.ingress.model.enums.CartStatus;
 import az.ingress.model.request.AddCartItemRequest;
 import az.ingress.model.request.UpdateCartItemRequest;
 import az.ingress.model.response.CartResponse;
+import az.ingress.queue.CartChangedEvent;
+import az.ingress.queue.CartEventPublisher;
 import az.ingress.service.abstraction.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import static az.ingress.exception.ErrorMessage.CART_NOT_FOUND;
 
 @ToLog(level = ToLog.Level.INFO, logArgs = true, logResult = false)
@@ -27,9 +32,13 @@ public class CartServiceHandler implements CartService {
     private final CartItemRepository cartItemRepository;
     private final CartResponseMapper cartResponseMapper;
     private final CartCacheService cartCacheService;
+    private final ProductCacheService productCacheService;
+    private final CartItemMapper cartItemMapper;
+    private final CartEventPublisher cartEventPublisher;
 
     @ToLog
     @Override
+    @Transactional(readOnly = true)
     public CartResponse getCart(Long buyerId) {
         var cached = cartCacheService.get(buyerId);
         if (cached != null) return cached;
@@ -42,6 +51,7 @@ public class CartServiceHandler implements CartService {
 
     @ToLog
     @Override
+    @Transactional
     public void addItem(Long buyerId, AddCartItemRequest request) {
         var cart = findOrCreateActiveCart(buyerId);
 
@@ -55,19 +65,20 @@ public class CartServiceHandler implements CartService {
             item.setQty(newQty);
             cartItemRepository.save(item);
         } else {
-            var newItem = new CartItemEntity();
+            // берём снапшот варианта товара через кэш
+            var snapshot = productCacheService.getOrLoad(request.getProductVariantId());
+            var newItem = cartItemMapper.toEntity(request, snapshot);
             newItem.setCart(cart);
-            newItem.setProductId(request.getProductId());
-            newItem.setProductVariantId(request.getProductVariantId());
-            newItem.setQty(Math.max(1, request.getQty()));
             cartItemRepository.save(newItem);
         }
 
         evictCartCache(buyerId);
+        cartEventPublisher.publishCartChanged(cart, CartChangedEvent.Action.ADDED);
     }
 
     @ToLog
     @Override
+    @Transactional
     public void updateItem(Long buyerId, Long productVariantId, UpdateCartItemRequest request) {
         var cart = findActiveCartOrThrow(buyerId);
         var item = findItemOrThrow(cart.getId(), productVariantId);
@@ -82,10 +93,12 @@ public class CartServiceHandler implements CartService {
         }
 
         evictCartCache(buyerId);
+        cartEventPublisher.publishCartChanged(cart, CartChangedEvent.Action.UPDATED);
     }
 
     @ToLog
     @Override
+    @Transactional
     public void removeItem(Long buyerId, Long productVariantId) {
         var cart = findActiveCartOrThrow(buyerId);
         var item = findItemOrThrow(cart.getId(), productVariantId);
@@ -94,6 +107,7 @@ public class CartServiceHandler implements CartService {
         cartItemRepository.delete(item);
 
         evictCartCache(buyerId);
+        cartEventPublisher.publishCartChanged(cart, CartChangedEvent.Action.REMOVED);
     }
 
     private void evictCartCache(Long buyerId) {

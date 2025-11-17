@@ -15,8 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
-import static javax.persistence.FetchType.*;
-
+import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @Setter
@@ -38,20 +37,21 @@ public class CartItemEntity {
     private CartEntity cart;
 
     private Long productId;
-
     private Long productVariantId;
 
     private Long qty;
 
     private BigDecimal unitPriceSnapshot;
-
     private Boolean onSaleSnapshot;
 
     private String titleSnapshot;
+    private String imageUrlSnapshot;
 
     private Long categoryIdSnapshot;
-
     private String categoryNameSnapshot;
+
+    private Long supplierIdSnapshot;
+    private String supplierUserNameSnapshot;
 
     private String attributesSnapshotJson;
 }

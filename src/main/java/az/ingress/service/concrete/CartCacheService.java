@@ -12,7 +12,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class CartCacheService {
     private static final String KEY = "cart:active:%d";
-    private static final Duration TTL = Duration.ofMinutes(10);
+    private static final Duration TTL = Duration.ofMinutes(30);
 
     private final RedissonClient redisson;
 

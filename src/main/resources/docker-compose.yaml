@@ -6,18 +6,17 @@ services:
     image: postgres:15-alpine
     container_name: postgres_db
     environment:
-      POSTGRES_DB: myapp_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ms_cart
+      POSTGRES_USER: ms_cart
+      POSTGRES_PASSWORD: ms_cart
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myapp_user -d myapp_db"]
+      test: ["CMD-SHELL", "pg_isready -U ms_cart -d ms_cart"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -30,8 +29,8 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
       RABBITMQ_DEFAULT_VHOST: /
     ports:
-      - "5672:5672"   # AMQP protocol port
-      - "15672:15672" # Management UI port
+      - "5672:5672"
+      - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -53,11 +52,10 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "redis_password", "PING"]
       interval: 30s
       timeout: 10s
       retries: 3
-
 
 volumes:
   postgres_data:

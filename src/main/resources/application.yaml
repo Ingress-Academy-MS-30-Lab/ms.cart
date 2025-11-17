@@ -4,27 +4,43 @@ server:
 spring:
   application:
     name: ms-cart
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ms_cart
+    username: ms_cart
+    password: ms_cart
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
-product:
-  client:
-    urls:
-      ms-product: ${MS_PRODUCT_URL:http://ms-product:8080}
-
-rabbitmq:
+  rabbitmq:
     host: ${RABBIT_HOST:localhost}
     port: ${RABBIT_PORT:5672}
     username: ${RABBIT_USER:guest}
     password: ${RABBIT_PASS:guest}
 
+product:
+  client:
+    base-url: ${MS_PRODUCT_URL:http://ms-product:8080}
+
+rabbitmq:
+  exchange: cart.exchange
+  queue: cart.changed.queue
+  routing-key: cart.changed
+
 redisson:
   server:
     url: ${REDIS_URL:redis://localhost:6379}
+
+jobs:
+  recommendations:
+    cron: ${RECS_CRON:0 */10 * * * *}
 
 management:
   endpoints:

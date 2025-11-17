@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 001-create-carts
-      author: rufat
+      author: Rufat
       changes:
         - createTable:
             tableName: carts

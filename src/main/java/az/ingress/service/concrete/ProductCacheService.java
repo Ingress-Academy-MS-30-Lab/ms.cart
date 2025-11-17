@@ -19,7 +19,6 @@ public class ProductCacheService {
 
     private final RedissonClient redisson;
     private final ProductClient productClient;
-    private final ProductSnapshotMapper mapper; // MapStruct: ProductResponseDto -> ProductSnapshotDto
 
     public ProductSnapshotDto getOrLoad(Long variantId) {
         String key = KEY.formatted(variantId);
@@ -29,8 +28,28 @@ public class ProductCacheService {
         if (cached != null) return cached;
 
         ProductResponseDto clientResp = productClient.getVariant(variantId);
-        ProductSnapshotDto snap = mapper.toSnapshot(clientResp);
-        if (snap != null) bucket.set(snap, TTL);
+        ProductSnapshotDto snap = toSnapshot(clientResp);
+        if (snap != null) {
+            bucket.set(snap, TTL);
+        }
         return snap;
+    }
+
+    private ProductSnapshotDto toSnapshot(ProductResponseDto r) {
+        if (r == null) return null;
+        return ProductSnapshotDto.builder()
+                .productId(r.getProductId())
+                .productVariantId(r.getProductVariantId())
+                .title(r.getTitle())
+                .imageUrl(r.getImageUrl())
+                .categoryId(r.getCategoryId())
+                .categoryName(r.getCategoryName())
+                .supplierId(r.getSupplierId())
+                .supplierUserName(r.getSupplierUserName())
+                .price(r.getPrice())
+                .salePrice(r.getSalePrice())
+                .onSale(r.getOnSale())
+                .attributesJson(r.getAttributesJson())
+                .build();
     }
 }
