@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
         name = "ms-product",
-        url = "${product.client.urls.ms-product}"
+        url = "${product.client.base-url:${MS_PRODUCT_URL:http://ms-product:8080}}"
 )
 public interface ProductClient {
     @GetMapping("/api/v1/internal/product-variants/{variantId}")

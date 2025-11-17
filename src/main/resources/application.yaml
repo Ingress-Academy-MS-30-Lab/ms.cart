@@ -13,8 +13,7 @@ spring:
 
 product:
   client:
-    urls:
-      ms-product: ${MS_PRODUCT_URL:http://ms-product:8080}
+    base-url: ${MS_PRODUCT_URL:http://ms-product:8080}
 
 rabbitmq:
     host: ${RABBIT_HOST:localhost}
