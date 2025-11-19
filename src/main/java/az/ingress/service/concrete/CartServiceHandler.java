@@ -65,7 +65,6 @@ public class CartServiceHandler implements CartService {
             item.setQty(newQty);
             cartItemRepository.save(item);
         } else {
-            // берём снапшот варианта товара через кэш
             var snapshot = productCacheService.getOrLoad(request.getProductVariantId());
             var newItem = cartItemMapper.toEntity(request, snapshot);
             newItem.setCart(cart);
