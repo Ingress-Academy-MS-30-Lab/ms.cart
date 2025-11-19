@@ -39,19 +39,6 @@ public class CartItemEntity {
     private Long productId;
     private Long productVariantId;
 
-    private Long qty;
+    private Integer quantity;
 
-    private BigDecimal unitPriceSnapshot;
-    private Boolean onSaleSnapshot;
-
-    private String titleSnapshot;
-    private String imageUrlSnapshot;
-
-    private Long categoryIdSnapshot;
-    private String categoryNameSnapshot;
-
-    private Long supplierIdSnapshot;
-    private String supplierUserNameSnapshot;
-
-    private String attributesSnapshotJson;
 }

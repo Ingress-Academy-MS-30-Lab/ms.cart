@@ -15,7 +15,7 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    private static final String UNEXPECTED_ERROR = "Unexpected error"; // <- String, не Attribute
+    private static final String UNEXPECTED_ERROR = "Unexpected error";
 
     private final ApplicationLogger log = ApplicationLogger.getLogger(ErrorHandler.class);
 
@@ -33,7 +33,7 @@ public class ErrorHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
-    // если есть твой NotFoundException
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(NOT_FOUND)
     public ErrorResponse handle(NotFoundException ex) {
@@ -41,7 +41,6 @@ public class ErrorHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
-    // валидация (опционально)
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handle(ConstraintViolationException ex) {

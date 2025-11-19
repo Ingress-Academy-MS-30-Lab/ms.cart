@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -16,6 +17,6 @@ public class CartResponse {
     private Long cartId;
     private Long buyerId;
     private String status;
-    private List<CartItemDto> items;       // <-- вместо CartItemResponse
+    private List<CartItemDto> items;
     private CartTotalResponse total;
 }

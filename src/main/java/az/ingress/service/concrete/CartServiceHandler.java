@@ -36,9 +36,8 @@ public class CartServiceHandler implements CartService {
     private final CartItemMapper cartItemMapper;
     private final CartEventPublisher cartEventPublisher;
 
-    @ToLog
+
     @Override
-    @Transactional(readOnly = true)
     public CartResponse getCart(Long buyerId) {
         var cached = cartCacheService.get(buyerId);
         if (cached != null) return cached;
@@ -49,9 +48,8 @@ public class CartServiceHandler implements CartService {
         return resp;
     }
 
-    @ToLog
+
     @Override
-    @Transactional
     public void addItem(Long buyerId, AddCartItemRequest request) {
         var cart = findOrCreateActiveCart(buyerId);
 
@@ -65,7 +63,6 @@ public class CartServiceHandler implements CartService {
             item.setQty(newQty);
             cartItemRepository.save(item);
         } else {
-            // берём снапшот варианта товара через кэш
             var snapshot = productCacheService.getOrLoad(request.getProductVariantId());
             var newItem = cartItemMapper.toEntity(request, snapshot);
             newItem.setCart(cart);
@@ -76,9 +73,7 @@ public class CartServiceHandler implements CartService {
         cartEventPublisher.publishCartChanged(cart, CartChangedEvent.Action.ADDED);
     }
 
-    @ToLog
     @Override
-    @Transactional
     public void updateItem(Long buyerId, Long productVariantId, UpdateCartItemRequest request) {
         var cart = findActiveCartOrThrow(buyerId);
         var item = findItemOrThrow(cart.getId(), productVariantId);
@@ -96,9 +91,7 @@ public class CartServiceHandler implements CartService {
         cartEventPublisher.publishCartChanged(cart, CartChangedEvent.Action.UPDATED);
     }
 
-    @ToLog
     @Override
-    @Transactional
     public void removeItem(Long buyerId, Long productVariantId) {
         var cart = findActiveCartOrThrow(buyerId);
         var item = findItemOrThrow(cart.getId(), productVariantId);

@@ -11,7 +11,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -22,7 +21,10 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Set;
+
+import static javax.persistence.EnumType.STRING;
 
 @Getter
 @Setter
@@ -39,7 +41,7 @@ public class CartEntity {
 
     private Long buyerId;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(STRING)
     private CartStatus status = CartStatus.CREATED;
 
     @CreationTimestamp
@@ -48,14 +50,14 @@ public class CartEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    private LocalDateTime deletedAt;
-
     @OneToMany(mappedBy = "cart", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<CartItemEntity> items;
 
     @Override public boolean equals(Object o)
     {if (this==o) return true; if(!(o instanceof CartEntity that)) return false; return id!=null && id.equals(that.id); }
 
-    @Override public int hashCode()
-    { return 31; }
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

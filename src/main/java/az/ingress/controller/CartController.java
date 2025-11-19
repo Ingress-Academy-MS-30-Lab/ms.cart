@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/carts")
+@RequestMapping("/v1/carts")
 @RequiredArgsConstructor
 public class CartController {
 

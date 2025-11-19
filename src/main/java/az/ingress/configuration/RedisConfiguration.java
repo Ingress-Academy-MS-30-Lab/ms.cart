@@ -17,7 +17,7 @@ public class RedisConfiguration {
             @Value("${redisson.server.url}") String redisUrl,
             ObjectMapper objectMapper
     ) {
-        Config cfg = new Config();
+        var cfg = new Config();
         cfg.setCodec(new JsonJacksonCodec(objectMapper));
         cfg.useSingleServer().setAddress(redisUrl);
         return Redisson.create(cfg);

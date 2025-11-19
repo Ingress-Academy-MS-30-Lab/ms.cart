@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import static org.springframework.boot.SpringApplication.run;
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = "az.ingress.client")
+@EnableFeignClients
 @EnableScheduling
 public class CartApplication {
 
