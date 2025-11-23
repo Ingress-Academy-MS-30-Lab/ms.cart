@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Primary
-@Profile("mock")
+@Profile("local")
 @Component
 public class MockProductClient implements ProductClient {
 

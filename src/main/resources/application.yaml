@@ -5,17 +5,13 @@ spring:
   application:
     name: ms-cart
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/ms_cart
-    username: ms_cart
-    password: ms_cart
-    driver-class-name: org.postgresql.Driver
+  profiles:
+    active: ${RUN_ENVIRONMENT:local}
 
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: validate
-
 
   rabbitmq:
     host: ${RABBIT_HOST:localhost}
