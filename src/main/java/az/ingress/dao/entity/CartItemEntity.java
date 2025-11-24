@@ -39,6 +39,6 @@ public class CartItemEntity {
     private Long productId;
     private Long productVariantId;
 
-    private Integer quantity;
+    private Long quantity;
 
 }

@@ -16,5 +16,5 @@ import javax.validation.constraints.NotNull;
 public class UpdateCartItemRequest {
     @NotNull
     @Min(0)
-    private Long qty;
+    private Long quantity;
 }

@@ -6,11 +6,14 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import az.ingress.logger.ApplicationLogger;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -46,5 +49,19 @@ public class ErrorHandler {
     public ErrorResponse handle(ConstraintViolationException ex) {
         log.warn("Validation failed: {}", ex.getMessage());
         return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handle(BindException ex) {
+        log.warn("Validation failed (BindException): {}", ex.getMessage());
+
+        String message = ex.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining("; "));
+
+        return new ErrorResponse(message);
     }
 }

@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public interface CartRepository extends CrudRepository<CartEntity, Long> {
 
-    Optional<CartEntity> findByBuyerIdAndStatusNot(Long buyerId, CartStatus status);
-
     @EntityGraph(attributePaths = "items")
-    Optional<CartEntity> findWithItemsByBuyerIdAndStatusNot(Long buyerId, CartStatus status);
+    Optional<CartEntity> findByBuyerIdAndStatusNot(Long buyerId, CartStatus status);
 }

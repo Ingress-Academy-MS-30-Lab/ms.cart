@@ -20,5 +20,5 @@ public class AddCartItemRequest {
     private Long productVariantId;
     @NotNull
     @Min(1)
-    private Long qty;
+    private Long quantity;
 }

@@ -24,32 +24,27 @@ public class ProductCacheService {
         String key = KEY.formatted(variantId);
         RBucket<ProductSnapshotDto> bucket = redisson.getBucket(key);
 
-        ProductSnapshotDto cached = bucket.get();
-        if (cached != null) return cached;
+        var cached = bucket.get();
+        if (cached != null) {
+            return cached;
+        }
 
-        ProductResponseDto clientResp = productClient.getVariant(variantId);
-        ProductSnapshotDto snap = toSnapshot(clientResp);
+        var clientResp = productClient.getVariant(variantId);
+        var snap = toSnapshot(clientResp);
         if (snap != null) {
             bucket.set(snap, TTL);
         }
         return snap;
     }
 
+
     private ProductSnapshotDto toSnapshot(ProductResponseDto r) {
-        if (r == null) return null;
+        if (r == null) {
+            return null;
+        }
         return ProductSnapshotDto.builder()
                 .productId(r.getProductId())
                 .productVariantId(r.getProductVariantId())
-                .title(r.getTitle())
-                .imageUrl(r.getImageUrl())
-                .categoryId(r.getCategoryId())
-                .categoryName(r.getCategoryName())
-                .supplierId(r.getSupplierId())
-                .supplierUserName(r.getSupplierUserName())
-                .price(r.getPrice())
-                .salePrice(r.getSalePrice())
-                .onSale(r.getOnSale())
-                .attributesJson(r.getAttributesJson())
                 .build();
     }
 }

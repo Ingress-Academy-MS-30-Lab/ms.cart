@@ -1,6 +1,5 @@
 package az.ingress.dao.entity;
 
-import az.ingress.dao.entity.CartItemEntity;
 import az.ingress.model.enums.CartStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
