@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ms_cart
+    username: ms_cart
+    password: ms_cart
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    drop-first: true

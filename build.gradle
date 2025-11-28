@@ -1,41 +1,54 @@
 plugins {
-    id "java"
-    id "org.springframework.boot" version "$springBootVersion"
-    id "io.spring.dependency-management" version "$dependencyManagementVersion"
-    id "groovy"
+    id 'java'
+    id 'org.springframework.boot' version '2.7.12'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
-group = "az.ingress"
-sourceCompatibility = "17"
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
+group = 'az.ingress'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    //spring
-    implementation "org.springframework.boot:spring-boot-starter-web"
-
-    //lombok
-    compileOnly "org.projectlombok:lombok"
-    annotationProcessor "org.projectlombok:lombok"
-
-    //swagger
-    implementation "org.springdoc:springdoc-openapi-ui:$openApiVersion"
-
-    //testing
-    testImplementation "org.apache.groovy:groovy:$groovyVersion"
-    testImplementation "io.github.benas:random-beans:$randomBeansVersion"
-    testImplementation "org.spockframework:spock-spring:$spockSpringVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+ext {
+    set('springCloudVersion', "2021.0.8")
 }
 
-test {
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.liquibase:liquibase-core'
+    implementation 'org.redisson:redisson:3.27.2'
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:5.13.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.13.0'
+
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+    imports {
+
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.withType(Test) {
+
     useJUnitPlatform()
 }
